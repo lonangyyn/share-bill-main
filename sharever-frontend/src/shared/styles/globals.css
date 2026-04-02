@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hiệu ứng mượt mà kiểu iOS */
+body {
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+}
+
+html, body, #root { height: 100%; }
+
+/* Animation xuất hiện từ dưới lên */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-enter {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+/* Stagger delays, scrollbar, hover-bounce, nav-item, ... */
+.delay-100 { animation-delay: 0.1s; }
+/* ... các đoạn CSS còn lại bạn giữ nguyên ... */

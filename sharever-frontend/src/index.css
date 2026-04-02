@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hiệu ứng mượt mà kiểu iOS */
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+html, body, #root {
+  height: 100%;
+}
+
+/* Animation xuất hiện từ dưới lên */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-enter {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+/* Stagger delays */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+
+/* Hover bounce */
+.hover-bounce {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hover-bounce:hover { transform: scale(1.05); }
+.hover-bounce:active { transform: scale(0.95); }
+
+/* Sidebar active indicator */
+.nav-item { position: relative; transition: background-color 0.2s; }
+.nav-indicator {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 60%;
+  width: 4px;
+  background-color: #4c1d95;
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.nav-item.active .nav-indicator { opacity: 1; }
+.nav-item.active {
+  background-color: #f3f4f6;
+  color: #111827;
+  font-weight: 600;
+}
