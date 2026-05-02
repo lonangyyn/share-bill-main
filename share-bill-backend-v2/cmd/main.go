@@ -8,6 +8,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 
+	"github.com/golang-migrate/migrate/v4"
+
 	"BACKEND/internal/config"
 	"BACKEND/internal/db"
 	database "BACKEND/internal/db/sqlc"
@@ -17,11 +19,27 @@ import (
 	"BACKEND/internal/utils"
 )
 
+func runDBMigration(migrationURL string, dbSource string) {
+	migration, err := migrate.New(migrationURL, dbSource)
+	if err != nil {
+		log.Println("Cannot create new migrate instance:", err)
+		return
+	}
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Println("Failed to run migrate up:", err)
+		return
+	}
+	log.Println("Database migrated successfully")
+}
+
 func main() {
 	cfg, err := config.LoadConfig(".")
 	if err != nil {
 		log.Fatal("Cannot load config:", err)
 	}
+
+	// Chạy auto-migrate để tự động tạo bảng trên Render/Local trước khi chạy server
+	runDBMigration("file://internal/db/migrations", cfg.DBSource)
 
 	connPool := db.NewDatabase(cfg.DBSource)
 	defer connPool.Close()

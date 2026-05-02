@@ -1,6 +1,7 @@
-#env
-#go.mod
-#go.sum
+.gitignore
+.env
+go.mod
+go.sum
 .git
 tests
 docs
