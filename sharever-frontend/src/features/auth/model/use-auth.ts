@@ -5,7 +5,6 @@ import {
   getToken,
   setToken,
   clearToken,
-  getRefreshToken,
   setRefreshToken,
 } from "../../../shared/lib/storage";
 import type { User } from "../../../entities/user/types";

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, Plus } from "lucide-react";
+import { Bell } from "lucide-react";
 import { useAuth } from "../../features/auth/model/use-auth";
 import { DEFAULT_AVATAR_URL } from "../../shared/lib/default-avatar";
 import { getAvatarUrl } from "../../shared/lib/random-avatar";
