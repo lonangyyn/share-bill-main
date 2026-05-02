@@ -12,46 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createCollector = `-- name: CreateCollector :one
-INSERT INTO collectors (
-    event_id, participant_id, bank_name, bank_account, bank_owner, is_active
-) VALUES (
-    $1, $2, $3, $4, $5, TRUE
-) RETURNING collector_id, collector_uuid, event_id, participant_id, bank_name, bank_account, bank_owner, assigned_at, ended_at, is_active
-`
-
-type CreateCollectorParams struct {
-	EventID       int64  `json:"event_id"`
-	ParticipantID *int64 `json:"participant_id"`
-	BankName      string `json:"bank_name"`
-	BankAccount   string `json:"bank_account"`
-	BankOwner     string `json:"bank_owner"`
-}
-
-func (q *Queries) CreateCollector(ctx context.Context, arg CreateCollectorParams) (Collector, error) {
-	row := q.db.QueryRow(ctx, createCollector,
-		arg.EventID,
-		arg.ParticipantID,
-		arg.BankName,
-		arg.BankAccount,
-		arg.BankOwner,
-	)
-	var i Collector
-	err := row.Scan(
-		&i.CollectorID,
-		&i.CollectorUuid,
-		&i.EventID,
-		&i.ParticipantID,
-		&i.BankName,
-		&i.BankAccount,
-		&i.BankOwner,
-		&i.AssignedAt,
-		&i.EndedAt,
-		&i.IsActive,
-	)
-	return i, err
-}
-
 const createSettlement = `-- name: CreateSettlement :one
 INSERT INTO settlements (
     event_id, settlement_uuid, payer_id, receiver_id, amount
@@ -87,17 +47,6 @@ func (q *Queries) CreateSettlement(ctx context.Context, arg CreateSettlementPara
 	return i, err
 }
 
-const deactivateCollector = `-- name: DeactivateCollector :exec
-UPDATE collectors
-SET is_active = FALSE, ended_at = NOW()
-WHERE collector_id = $1
-`
-
-func (q *Queries) DeactivateCollector(ctx context.Context, collectorID int64) error {
-	_, err := q.db.Exec(ctx, deactivateCollector, collectorID)
-	return err
-}
-
 const deleteSettlement = `-- name: DeleteSettlement :exec
 DELETE FROM settlements WHERE settlement_id = $1
 `
@@ -105,43 +54,6 @@ DELETE FROM settlements WHERE settlement_id = $1
 func (q *Queries) DeleteSettlement(ctx context.Context, settlementID int64) error {
 	_, err := q.db.Exec(ctx, deleteSettlement, settlementID)
 	return err
-}
-
-const getActiveCollectorByEventID = `-- name: GetActiveCollectorByEventID :one
-SELECT 
-    c.collector_id, 
-    c.bank_name, 
-    c.bank_account, 
-    c.bank_owner,
-    p.participant_uuid, 
-    p.name as participant_name
-FROM collectors c
-JOIN participants p ON c.participant_id = p.participant_id
-WHERE c.event_id = $1 AND c.is_active = TRUE
-LIMIT 1
-`
-
-type GetActiveCollectorByEventIDRow struct {
-	CollectorID     int64     `json:"collector_id"`
-	BankName        string    `json:"bank_name"`
-	BankAccount     string    `json:"bank_account"`
-	BankOwner       string    `json:"bank_owner"`
-	ParticipantUuid uuid.UUID `json:"participant_uuid"`
-	ParticipantName string    `json:"participant_name"`
-}
-
-func (q *Queries) GetActiveCollectorByEventID(ctx context.Context, eventID int64) (GetActiveCollectorByEventIDRow, error) {
-	row := q.db.QueryRow(ctx, getActiveCollectorByEventID, eventID)
-	var i GetActiveCollectorByEventIDRow
-	err := row.Scan(
-		&i.CollectorID,
-		&i.BankName,
-		&i.BankAccount,
-		&i.BankOwner,
-		&i.ParticipantUuid,
-		&i.ParticipantName,
-	)
-	return i, err
 }
 
 const getEventBalances = `-- name: GetEventBalances :many

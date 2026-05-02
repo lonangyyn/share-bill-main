@@ -22,6 +22,7 @@ func SetupRoutes(
 	settlementHandler *handlers.SettlementHandler,
 	participantHandler *handlers.ParticipantHandler,
 	paymentHandler *handlers.PaymentHandler,
+	notificationHandler *handlers.NotificationHandler,
 ) {
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(models.SuccessResponse{
@@ -33,8 +34,10 @@ func SetupRoutes(
 
 
 	api := app.Group("/api")
+	api.Get("/invite/:eventId", eventHandler.GetEventInvite) 
 	// PUBLIC ROUTES (Ko cần Token) ===================================
 	auth := api.Group("/auth")
+	
 	// --- AUTH ---
 	// Gửi OTP đăng ký
 	auth.Post("/register/request", userHandler.RegisterRequestCode) 
@@ -95,9 +98,9 @@ func SetupRoutes(
 
 	// --- PAYMENT ROUTES ---
 	// Chọn collector
-    events.Put("/:eventId/collector", paymentHandler.SetCollector)
+    //events.Put("/:eventId/collector", paymentHandler.SetCollector)
 	// Lấy collector hiện tại
-    events.Get("/:eventId/collector", paymentHandler.GetCollector)
+    //events.Get("/:eventId/collector", paymentHandler.GetCollector)
 	// Lấy mã QR
     events.Get("/:eventId/generate-qrcode", paymentHandler.GetPaymentQR)
 
@@ -119,4 +122,9 @@ func SetupRoutes(
 	parts.Put("/:participantId", participantHandler.UpdateParticipant)
 	// Kick thành viên
 	parts.Delete("/:participantId", participantHandler.KickParticipant)
+
+	// --- NOTIFICATIONS ---
+	notifs := v1.Group("/notifications")
+	notifs.Get("/", notificationHandler.GetNotifications)
+	notifs.Post("/read", notificationHandler.MarkAllRead)
 }

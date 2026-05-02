@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	database "BACKEND/internal/db/sqlc"
 	models "BACKEND/internal/dto"
@@ -68,6 +69,19 @@ func (s *ExpenseService) CreateTransaction(ctx context.Context, userID int64, ev
 
 	if err != nil {
 		return models.TransactionResponse{}, err 
+	}
+
+	// Notify all beneficiaries (except the person who created the expense)
+	for _, b := range req.Beneficiaries {
+		for _, p := range participantsDB {
+			if p.ParticipantUuid.String() == b.ParticipantID && p.UserID != nil && *p.UserID != userID {
+				_,err = s.store.CreateNotification(ctx, database.CreateNotificationParams{
+					UserID:  *p.UserID,
+					Text:    fmt.Sprintf("You were added to the expense '%s' in event %s", req.Description, event.Name),
+					EventID: &event.EventID,
+				})
+			}
+		}
 	}
 
 	return models.TransactionResponse{

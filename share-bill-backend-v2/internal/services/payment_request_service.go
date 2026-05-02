@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	database "BACKEND/internal/db/sqlc"
@@ -116,6 +117,15 @@ func (s *PaymentRequestService) CreatePaymentRequest(ctx context.Context, userID
 	)
 	if err != nil {
 		return models.PaymentRequestDTO{}, utils.ErrInternalDB
+	}
+
+	// Notify the receiver
+	if receiverPart.UserID != nil {
+		_, err = s.queries.CreateNotification(ctx, database.CreateNotificationParams{
+			UserID:  *receiverPart.UserID,
+			Text:    fmt.Sprintf("%s has submitted a payment of %v", payerPart.Name, req.Amount),
+			EventID: &event.EventID,
+		})
 	}
 
 	return models.PaymentRequestDTO{
@@ -285,6 +295,16 @@ func (s *PaymentRequestService) ConfirmPaymentRequest(ctx context.Context, userI
 		return models.PaymentRequestDTO{}, utils.ErrInternalDB
 	}
 
+	// Notify the payer
+	payerPart, _ := s.queries.GetParticipantByUUID(ctx, row.payerUUID)
+	if payerPart.UserID != nil {
+		_, err = s.queries.CreateNotification(ctx, database.CreateNotificationParams{
+			UserID:  *payerPart.UserID,
+			Text:    fmt.Sprintf("%s confirmed your payment of %v", requesterPart.Name, utils.NumericToFloat(row.amount)),
+			EventID: &event.EventID,
+		})
+	}
+
 	row.status = paymentStatusConfirmed
 	row.updatedAt = updatedAt
 	return s.toPaymentRequestDTO(row, eventUUIDStr), nil
@@ -336,6 +356,16 @@ func (s *PaymentRequestService) CancelPaymentRequest(ctx context.Context, userID
 			return models.PaymentRequestDTO{}, utils.ErrInvalidInput
 		}
 		return models.PaymentRequestDTO{}, utils.ErrInternalDB
+	}
+
+	// Notify the payer
+	payerPart, _ := s.queries.GetParticipantByUUID(ctx, row.payerUUID)
+	if payerPart.UserID != nil {
+		_, err = s.queries.CreateNotification(ctx, database.CreateNotificationParams{
+			UserID:  *payerPart.UserID,
+			Text:    fmt.Sprintf("%s canceled your payment of %v", requesterPart.Name, utils.NumericToFloat(row.amount)),
+			EventID: &event.EventID,
+		})
 	}
 
 	row.status = paymentStatusCanceled

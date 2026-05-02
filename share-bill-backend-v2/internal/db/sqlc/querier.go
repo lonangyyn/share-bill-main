@@ -13,39 +13,37 @@ import (
 
 type Querier interface {
 	AddParticipant(ctx context.Context, arg AddParticipantParams) (Participant, error)
-	CreateCollector(ctx context.Context, arg CreateCollectorParams) (Collector, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error)
 	CreateExpense(ctx context.Context, arg CreateExpenseParams) (Expense, error)
 	CreateExpenseBeneficiary(ctx context.Context, arg CreateExpenseBeneficiaryParams) error
 	CreateExpensePayer(ctx context.Context, arg CreateExpensePayerParams) error
+	CreateNotification(ctx context.Context, arg CreateNotificationParams) (Notification, error)
 	CreateSettlement(ctx context.Context, arg CreateSettlementParams) (Settlement, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
-	CreateVerifyEmail(ctx context.Context, arg CreateVerifyEmailParams) (VerifyEmail, error)
-	DeactivateCollector(ctx context.Context, collectorID int64) error
 	DeleteEvent(ctx context.Context, eventID int64) error
 	DeleteExpense(ctx context.Context, expenseID int64) error
 	DeleteExpenseBeneficiaries(ctx context.Context, expenseID *int64) error
 	DeleteExpensePayers(ctx context.Context, expenseID int64) error
 	DeleteSettlement(ctx context.Context, settlementID int64) error
-	GetActiveCollectorByEventID(ctx context.Context, eventID int64) (GetActiveCollectorByEventIDRow, error)
 	GetEventBalances(ctx context.Context, eventID int64) ([]GetEventBalancesRow, error)
 	GetEventByID(ctx context.Context, eventID int64) (Event, error)
 	GetEventByUUID(ctx context.Context, eventUuid uuid.UUID) (Event, error)
 	GetExpenseBeneficiaries(ctx context.Context, expenseID *int64) ([]GetExpenseBeneficiariesRow, error)
 	GetExpenseByUUID(ctx context.Context, expenseUuid uuid.UUID) (Expense, error)
 	GetExpensePayers(ctx context.Context, expenseID int64) ([]GetExpensePayersRow, error)
+	GetNotificationsByUserID(ctx context.Context, userID int64) ([]GetNotificationsByUserIDRow, error)
 	GetParticipantBalance(ctx context.Context, arg GetParticipantBalanceParams) (pgtype.Numeric, error)
 	GetParticipantByEventAndUser(ctx context.Context, arg GetParticipantByEventAndUserParams) (Participant, error)
 	GetParticipantByID(ctx context.Context, participantID int64) (Participant, error)
 	GetParticipantByUUID(ctx context.Context, participantUuid uuid.UUID) (Participant, error)
 	GetUserByEmail(ctx context.Context, email *string) (User, error)
 	GetUserByID(ctx context.Context, userID int64) (User, error)
-	GetValidVerifyEmail(ctx context.Context, email string) (VerifyEmail, error)
 	// Lấy danh sách event mà user đã tham gia
 	ListEventsByUserID(ctx context.Context, userID *int64) ([]Event, error)
 	ListExpensesByEventID(ctx context.Context, eventID int64) ([]ListExpensesByEventIDRow, error)
 	ListParticipantsByEventID(ctx context.Context, eventID int64) ([]ListParticipantsByEventIDRow, error)
 	ListSettlementsByEvent(ctx context.Context, eventID int64) ([]ListSettlementsByEventRow, error)
+	MarkNotificationsRead(ctx context.Context, userID int64) error
 	RemoveParticipant(ctx context.Context, arg RemoveParticipantParams) error
 	RemoveParticipantByID(ctx context.Context, participantID int64) error
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error)
@@ -53,7 +51,6 @@ type Querier interface {
 	UpdateParticipant(ctx context.Context, arg UpdateParticipantParams) (Participant, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpdateUserAvatar(ctx context.Context, arg UpdateUserAvatarParams) (User, error)
-	UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParams) (VerifyEmail, error)
 }
 
 var _ Querier = (*Queries)(nil)

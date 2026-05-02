@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Thêm useEffect
 import { Modal } from "../../../shared/ui/modal";
 import { Input } from "../../../shared/ui/input";
 import { Button } from "../../../shared/ui/button";
@@ -18,6 +18,15 @@ interface BankInfoFormProps {
   onSubmit?: (data: BankInfoPayload) => Promise<void> | void;
 }
 
+interface Bank {
+  id: number;
+  name: string;
+  code: string;
+  bin: string;
+  shortName: string;
+  logo: string;
+}
+
 export function BankInfoForm({
   open,
   onClose,
@@ -27,12 +36,29 @@ export function BankInfoForm({
   const toast = useToast();
   const [bankName, setBankName] = useState(initial?.bankName ?? "");
   const [accountNumber, setAccountNumber] = useState(
-    initial?.accountNumber ?? ""
+    initial?.accountNumber ?? "",
   );
-  const [accountName, setAccountName] = useState(
-    initial?.accountName ?? ""
-  );
+  const [accountName, setAccountName] = useState(initial?.accountName ?? "");
   const [loading, setLoading] = useState(false);
+
+  // State lưu danh sách ngân hàng từ API
+  const [banks, setBanks] = useState<Bank[]>([]);
+  const [fetchingBanks, setFetchingBanks] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setFetchingBanks(true);
+      fetch("https://api.vietqr.io/v2/banks")
+        .then((res) => res.json())
+        .then((result) => {
+          if (result.code === "00") {
+            setBanks(result.data);
+          }
+        })
+        .catch((err) => console.error("Failed to fetch banks", err))
+        .finally(() => setFetchingBanks(false));
+    }
+  }, [open]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,7 +67,7 @@ export function BankInfoForm({
     setLoading(true);
     try {
       await onSubmit({ bankName, accountNumber, accountName });
-      toast.push("Bank info updated.");
+      toast.push("Update bank info successfully");
       onClose();
     } catch (err) {
       toast.push(normalizeError(err));
@@ -51,21 +77,28 @@ export function BankInfoForm({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Bank information">
+    <Modal open={open} onClose={onClose} title="Bank Information">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">
-            Bank code (VietQR)
-          </label>
-          <Input
-            placeholder="VCB"
+          <label className="text-sm font-medium text-gray-700">Bank</label>
+          {/* Thay thế Input bằng select */}
+          <select
+            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-1 focus:ring-purple-300 disabled:bg-gray-100"
             value={bankName}
             onChange={(e) => setBankName(e.target.value)}
             required
-          />
-          <div className="text-xs text-gray-500">
-            Use VietQR bank code (e.g. VCB, ACB, TCB).
-          </div>
+            disabled={fetchingBanks}
+          >
+            <option value="">-- Select Bank --</option>
+            {banks.map((bank) => (
+              <option key={bank.id} value={bank.code}>
+                {bank.shortName} - {bank.name}
+              </option>
+            ))}
+          </select>
+          {fetchingBanks && (
+            <div className="text-xs text-blue-500">Loading bank list...</div>
+          )}
         </div>
 
         <div className="space-y-1">
@@ -87,7 +120,7 @@ export function BankInfoForm({
           <Input
             placeholder="NGUYEN VAN A"
             value={accountName}
-            onChange={(e) => setAccountName(e.target.value)}
+            onChange={(e) => setAccountName(e.target.value.toUpperCase())} // Thường tên TK nên viết hoa
             required
           />
         </div>
@@ -101,8 +134,8 @@ export function BankInfoForm({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? "Saving..." : "Save"}
+          <Button type="submit" disabled={loading || fetchingBanks}>
+            {loading ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </form>

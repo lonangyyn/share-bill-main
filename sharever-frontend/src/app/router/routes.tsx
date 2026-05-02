@@ -1,8 +1,8 @@
 // src/app/router/routes.tsx
-import { RequireAuth } from "./guards";
-
 import AuthLayout from "../layouts/auth-layout";
 import MainLayout from "../layouts/main-layout";
+import { AuthProvider } from "../providers/auth-provider";
+import { RequireAuth } from "./guards";
 
 import HomePage from "../../pages/home/home-page";
 import LoginPage from "../../pages/auth/login-page";
@@ -16,12 +16,16 @@ import ActivityPage from "../../pages/activity/activity-page";
 import ProfilePage from "../../pages/profile/profile-page";
 import NotFoundPage from "../../pages/not-found";
 import ExpensesPage from "../../pages/expenses/expenses-page";
-import AccountsPage from "../../pages/accounts/accounts-page"
+import AccountsPage from "../../pages/accounts/accounts-page";
 export const routes = [
   // HOME PUBLIC
   {
     path: "/",
-    element: <HomePage />,
+    element: (
+      <AuthProvider>
+        <HomePage />
+      </AuthProvider>
+    ),
   },
 
   // AUTH PUBLIC
@@ -51,23 +55,32 @@ export const routes = [
   },
   {
     path: "/invite/:eventId",
-    element: <InvitePage />,
+    element: (
+      <AuthProvider>
+        <InvitePage />
+      </AuthProvider>
+    ),
   },
 
   // APP (cần đăng nhập)
   {
-  path: "/app",
-  element: <MainLayout />,  // 👉 bỏ RequireAuth
-  children: [
-    { index: true, element: <EventsListPage /> },
-    { path: "events/:eventId", element: <EventDetailPage /> },
-    { path: "activity", element: <ActivityPage /> },
-    { path: "profile", element: <ProfilePage /> },
-    { path: "expenses", element: <ExpensesPage/>},
-    { path: "accounts", element: <AccountsPage/>},
-  ],
-},
-
+    path: "/app",
+    element: (
+      <AuthProvider>
+        <RequireAuth>
+          <MainLayout />
+        </RequireAuth>
+      </AuthProvider>
+    ),
+    children: [
+      { index: true, element: <EventsListPage /> },
+      { path: "events/:eventId", element: <EventDetailPage /> },
+      { path: "activity", element: <ActivityPage /> },
+      { path: "profile", element: <ProfilePage /> },
+      { path: "expenses", element: <ExpensesPage /> },
+      { path: "accounts", element: <AccountsPage /> },
+    ],
+  },
 
   // 404
   {

@@ -57,7 +57,7 @@ func (s *UserService) RegisterRequestCode(ctx context.Context, email string) err
 	// Key: otp:a@gmail.com  Value: 123456
 	err = s.redisClient.SetOTP(ctx, email, otp, 5*time.Minute)
 	if err != nil {
-		return errors.New("failed to store otp in cache")
+		return errors.New("Failed to store OTP in cache")
 	}
 
 	subject := "Sharever - Mã xác thực đăng ký"
@@ -69,7 +69,7 @@ func (s *UserService) RegisterRequestCode(ctx context.Context, email string) err
 	to := []string{email}
 	err = s.emailSender.SendEmail(subject, content, to)
 	if err != nil {
-		return errors.New("failed to send email")
+		return errors.New("Failed to send email")
 	}
 
 	return nil
@@ -97,7 +97,7 @@ func (s *UserService) ResendVerifyCode(ctx context.Context, email string) error 
 	if err == redis.Nil {
 		otp := utils.GenerateOTP()
 		if err := s.redisClient.SetOTP(ctx, email, otp, 5*time.Minute); err != nil {
-			return errors.New("failed to store otp in cache")
+			return errors.New("Failed to store OTP in cache")
 		}
 		storedOTP = otp
 	} else if err != nil {
@@ -115,7 +115,7 @@ func (s *UserService) ResendVerifyCode(ctx context.Context, email string) error 
 	`, storedOTP)
 	to := []string{email}
 	if err := s.emailSender.SendEmail(subject, content, to); err != nil {
-		return errors.New("failed to send email")
+		return errors.New("Failed to send email")
 	}
 
 	return nil
@@ -125,12 +125,12 @@ func (s *UserService) ResendVerifyCode(ctx context.Context, email string) error 
 func (s *UserService) RegisterConfirm(ctx context.Context, req models.RegisterConfirmRequest) (models.UserResponse, error) {
 	storedOTP, err := s.redisClient.GetOTP(ctx, req.Email)
 	if err == redis.Nil {
-		return models.UserResponse{}, errors.New("otp expired or not found")
+		return models.UserResponse{}, errors.New("OTP expired or not found")
 	} else if err != nil {
 		return models.UserResponse{}, utils.ErrNotFound
 	}
 	if storedOTP != req.Code {
-		return models.UserResponse{}, errors.New("invalid verification code")
+		return models.UserResponse{}, errors.New("Invalid verification code")
 	}
 	hashedPwd, err := utils.HashPassword(req.Password)
 	if err != nil {
@@ -318,17 +318,5 @@ func (s *UserService) UpdateUserAvatar(ctx context.Context, userID int64, file m
 	if err != nil {
 		return models.UserResponse{}, utils.ErrInternalDB
 	}
-	return models.UserResponse{
-		ID:          updatedUser.UserUuid.String(),
-		Name:        updatedUser.Name,
-		Email:       *updatedUser.Email,
-		PhoneNumber: updatedUser.PhoneNumber,
-		Avatar:      updatedUser.Avatar, 
-		BankInfo:    &models.BankInfoDTO{
-			BankName: *updatedUser.BankName,
-			AccountNumber: *updatedUser.BankAccount,
-			AccountName: *updatedUser.BankOwner,
-		},          
-		UpdatedAt:   updatedUser.UpdatedAt,
-	}, nil
+	return s.mapUserResponse(updatedUser), nil
 }

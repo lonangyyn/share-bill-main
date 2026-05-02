@@ -10,6 +10,7 @@ import { participantApi } from "../../entities/participant/api";
 import { Button } from "../../shared/ui/button";
 import { useToast } from "../../shared/ui/toast";
 import { normalizeError } from "../../shared/lib/errors";
+import { queryKeys } from "../../shared/api/query-keys";
 
 export default function InvitePage() {
   const { eventId } = useParams();
@@ -23,18 +24,31 @@ export default function InvitePage() {
 
   const returnTo = useMemo(
     () => `${location.pathname}${location.search}`,
-    [location.pathname, location.search]
+    [location.pathname, location.search],
   );
 
   const { data: detail, isLoading: detailLoading } = useQuery({
-    queryKey: ["event-detail", eventId],
-    queryFn: () => eventApi.detail(eventId as string),
+    queryKey: queryKeys.events.inviteDetail(eventId as string),
+    queryFn: () => eventApi.inviteDetail(eventId as string),
+    enabled: !!eventId,
+  });
+
+  const { data: participants = [] } = useQuery({
+    queryKey: queryKeys.participants.list(eventId as string),
+    queryFn: () => participantApi.list(eventId as string),
     enabled: !!eventId && isAuthed,
   });
 
   const eventData = (detail as any)?.event ?? detail;
-  const eventName = eventData?.name ?? "This activity";
+  const eventName = eventData?.name;
   const eventDescription = eventData?.description ?? "";
+
+  const hasJoined = useMemo(() => {
+    if (!user || !participants.length) return false;
+    return participants.some(
+      (p) => p.userId === user.id || p.email === user.email,
+    );
+  }, [user, participants]);
 
   async function handleJoin() {
     if (!eventId) return;
@@ -90,10 +104,14 @@ export default function InvitePage() {
                   You are invited to
                 </div>
                 <div className="text-xl font-extrabold text-gray-900">
-                  {detailLoading ? "Loading activity..." : eventName}
+                  {detailLoading
+                    ? "Loading activity..."
+                    : eventName || "This activity"}
                 </div>
                 {eventDescription && (
-                  <div className="text-sm text-gray-500">{eventDescription}</div>
+                  <div className="text-sm text-gray-500">
+                    {eventDescription}
+                  </div>
                 )}
                 <div className="text-xs text-gray-400 flex items-center gap-2">
                   <Link2 size={12} />
@@ -128,21 +146,24 @@ export default function InvitePage() {
             )}
 
             {eventId && isAuthed && (
-              <div className="flex flex-wrap items-center gap-3">
-                <Button
-                  className="gap-2"
-                  onClick={handleJoin}
-                  disabled={joinLoading}
-                >
-                  {joinLoading ? "Joining..." : "Join activity"}
-                  {!joinLoading && <ArrowRight size={16} />}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate("/app/activity")}
-                >
-                  Open activity
-                </Button>
+              <div className="space-y-3">
+                {hasJoined && (
+                  <div className="rounded-2xl border border-green-100 bg-green-50 p-4 text-green-700 text-sm font-medium">
+                    You already joined this activity
+                  </div>
+                )}
+                {!hasJoined && (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button
+                      className="gap-2"
+                      onClick={handleJoin}
+                      disabled={joinLoading}
+                    >
+                      {joinLoading ? "Joining..." : "Join activity"}
+                      {!joinLoading && <ArrowRight size={16} />}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

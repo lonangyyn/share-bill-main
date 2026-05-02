@@ -20,7 +20,7 @@ type LoginRequest struct {
 
 type LoginResponse struct {
 	Token string       `json:"token"`
-	RefreshToken string `json:"refreshToken"`
+	RefreshToken string `json:"refresh_token"`
 	User  UserResponse `json:"user"`
 }
 
@@ -57,4 +57,3 @@ type UpdateProfileRequest struct {
 	AccountNumber string `json:"accountNumber"`
 	AccountName   string `json:"accountName"`
 }
-

@@ -13,8 +13,6 @@ export const endpoints = {
     updateProfile: () => "/v1/users/profile",
     avatar: () => "/v1/users/avatar",
     password: () => "/v1/users/password",
-    //
-    changePassword: () => "/users/password",
   },
 
   participants: {
@@ -22,9 +20,11 @@ export const endpoints = {
     add: (eventId: string) => `/v1/events/${eventId}/participants`,
     update: (participantId: string) => `/v1/participants/${participantId}`,
     joinByLink: (eventId: string) => `/v1/events/${eventId}/join`,
+    remove: (participantId: string) => `/v1/participants/${participantId}`,
   },
 
   events: {
+    invite_detail: (eventId: string) => `/invite/${eventId}`,
     list: () => "/v1/events",
     detail: (eventId: string) => `/v1/events/${eventId}`,
     create: () => "/v1/events",
@@ -53,5 +53,11 @@ export const endpoints = {
       `/v1/events/${eventId}/payment-requests/${requestId}/confirm`,
     cancel: (eventId: string, requestId: string) =>
       `/v1/events/${eventId}/payment-requests/${requestId}/cancel`,
+  },
+
+  notifications: {
+    list: () => "/v1/notifications",
+    markRead: () => "/v1/notifications/read",
+    markOneRead: (id: string | number) => `/v1/notifications/${id}/read`,
   },
 };

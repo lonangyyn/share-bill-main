@@ -20,44 +20,44 @@ func NewPaymentHandler(s *services.PaymentService) *PaymentHandler {
 
 // PUT /api/v1/events/:eventId/collector
 // Chon collector cho event
-func (h *PaymentHandler) SetCollector(c *fiber.Ctx) error {
-	userID := c.Locals("user_id").(int64)
-	eventUUID := c.Params("eventId")
+// func (h *PaymentHandler) SetCollector(c *fiber.Ctx) error {
+// 	userID := c.Locals("user_id").(int64)
+// 	eventUUID := c.Params("eventId")
 
-	var req models.SetCollectorRequest
-	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
-			Error: "INVALID_BODY", Message: "Invalid JSON format",
-		})
-	}
+// 	var req models.SetCollectorRequest
+// 	if err := c.BodyParser(&req); err != nil {
+// 		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
+// 			Error: "INVALID_BODY", Message: "Invalid JSON format",
+// 		})
+// 	}
 
-	err := h.service.SetCollector(c.Context(), userID, eventUUID, req)
-	if err != nil {
-		return utils.MapError(c, err)
-	}
+// 	err := h.service.SetCollector(c.Context(), userID, eventUUID, req)
+// 	if err != nil {
+// 		return utils.MapError(c, err)
+// 	}
 
-	return c.Status(fiber.StatusOK).JSON(models.SuccessResponse{
-		Success: true,
-		Message: "Collector updated successfully",
-	})
-}
+// 	return c.Status(fiber.StatusOK).JSON(models.SuccessResponse{
+// 		Success: true,
+// 		Message: "Collector updated successfully",
+// 	})
+// }
 
 // GET /api/v1/events/:eventId/collector
 // Lay collector dang active
-func (h *PaymentHandler) GetCollector(c *fiber.Ctx) error {
-	userID := c.Locals("user_id").(int64)
-	eventUUID := c.Params("eventId")
+// func (h *PaymentHandler) GetCollector(c *fiber.Ctx) error {
+// 	userID := c.Locals("user_id").(int64)
+// 	eventUUID := c.Params("eventId")
 
-	resp, err := h.service.GetActiveCollector(c.Context(), userID, eventUUID)
-	if err != nil {
-		return utils.MapError(c, err)
-	}
+// 	resp, err := h.service.GetActiveCollector(c.Context(), userID, eventUUID)
+// 	if err != nil {
+// 		return utils.MapError(c, err)
+// 	}
 
-	return c.Status(fiber.StatusOK).JSON(models.SuccessResponse{
-		Success: true,
-		Data:    resp,
-	})
-}
+// 	return c.Status(fiber.StatusOK).JSON(models.SuccessResponse{
+// 		Success: true,
+// 		Data:    resp,
+// 	})
+// }
 
 // GET /api/v1/events/:eventId/qr?amount=50000&receiverId=...
 // Sinh ma QR cho thanh toan

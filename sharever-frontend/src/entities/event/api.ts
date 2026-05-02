@@ -10,7 +10,8 @@ type ApiResponse<T> = {
 
 function unwrap<T>(res: any): T {
   const body: ApiResponse<T> = res?.data ?? {};
-  if (body?.success === false) throw new Error(body.message || "Request failed");
+  if (body?.success === false)
+    throw new Error(body.message || "Request failed");
   if (body?.data === undefined) {
     // fallback nếu backend trả thẳng T
     return res.data as T;
@@ -29,7 +30,16 @@ export const eventApi = {
     return unwrap<EventDetail>(res);
   },
 
-  async create(payload: { name: string; currency: string; description?: string }): Promise<Event> {
+  async inviteDetail(eventId: string): Promise<EventDetail> {
+    const res = await http.get(endpoints.events.invite_detail(eventId));
+    return unwrap<EventDetail>(res);
+  },
+
+  async create(payload: {
+    name: string;
+    currency: string;
+    description?: string;
+  }): Promise<Event> {
     const res = await http.post(endpoints.events.create(), payload);
     return unwrap<Event>(res);
   },

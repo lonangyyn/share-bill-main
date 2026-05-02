@@ -45,16 +45,16 @@ export function ExpenseForm({
 }: ExpenseFormProps) {
   const toast = useToast();
   const [description, setDescription] = useState(
-    initialValues?.description ?? ""
+    initialValues?.description ?? "",
   );
   const [amount, setAmount] = useState<string>(
-    initialValues?.amount !== undefined ? String(initialValues.amount) : ""
+    initialValues?.amount !== undefined ? String(initialValues.amount) : "",
   );
   const [paidById, setPaidById] = useState<string>(
-    lockPaidById ?? initialValues?.paidById ?? participants[0]?.id ?? ""
+    lockPaidById ?? initialValues?.paidById ?? participants[0]?.id ?? "",
   );
   const [splitType, setSplitType] = useState<SplitType>(
-    initialValues?.splitType ?? "equal"
+    initialValues?.splitType ?? "equal",
   );
   const [note, setNote] = useState(initialValues?.note ?? "");
   const [loading, setLoading] = useState(false);
@@ -64,14 +64,14 @@ export function ExpenseForm({
   const [percentages, setPercentages] = useState<Record<string, number>>({});
   const participantById = useMemo(
     () => new Map(participants.map((p) => [p.id, p])),
-    [participants]
+    [participants],
   );
 
   useEffect(() => {
     if (!initialValues) return;
     setDescription(initialValues.description ?? "");
     setAmount(
-      initialValues.amount !== undefined ? String(initialValues.amount) : ""
+      initialValues.amount !== undefined ? String(initialValues.amount) : "",
     );
     setSplitType(initialValues.splitType ?? "equal");
     setNote(initialValues.note ?? "");
@@ -93,7 +93,7 @@ export function ExpenseForm({
       const total = Number(initialValues.amount ?? 0);
       const totalWeight = initialValues.beneficiaries.reduce(
         (sum, b) => sum + b.weight,
-        0
+        0,
       );
       if (total > 0 && totalWeight > 0) {
         const nextAmounts: Record<string, string> = {};
@@ -112,7 +112,12 @@ export function ExpenseForm({
       setExactAmounts({});
     }
     setSplitError(null);
-  }, [initialValues?.beneficiaries, initialValues?.amount, participantById, participants]);
+  }, [
+    initialValues?.beneficiaries,
+    initialValues?.amount,
+    participantById,
+    participants,
+  ]);
 
   useEffect(() => {
     if (lockPaidById) {
@@ -168,7 +173,10 @@ export function ExpenseForm({
     let beneficiaries: BeneficiaryInput[] = [];
 
     if (splitType === "percentage") {
-      const totalPercent = Object.values(percentages).reduce((a, b) => a + b, 0);
+      const totalPercent = Object.values(percentages).reduce(
+        (a, b) => a + b,
+        0,
+      );
       if (Math.abs(totalPercent - 100) > 0.01) {
         setSplitError("Sum of percentages must equal 100%.");
         return;
@@ -180,9 +188,13 @@ export function ExpenseForm({
       }));
     } else if (splitType === "exact") {
       // Logic exact giữ nguyên
-      const amounts = selectedIds.map((id) => parseMoney(exactAmounts[id] ?? ""));
-      if (amounts.some((v) => v <= 0)) {
-        setSplitError("Enter exact amounts greater than 0 for all selected participants.");
+      const amounts = selectedIds.map((id) =>
+        parseMoney(exactAmounts[id] ?? ""),
+      );
+      if (amounts.some((v) => v < 0)) {
+        setSplitError(
+          "Enter exact amounts greater than 0 for all selected participants.",
+        );
         return;
       }
       const sum = amounts.reduce((acc, v) => acc + v, 0);
@@ -264,7 +276,7 @@ export function ExpenseForm({
             </div>
           )}
           <select
-            className="h-11 w-full rounded-2xl bg-gray-100 px-4 text-sm text-gray-800 outline-none border border-transparent focus:border-purple-400 focus:bg-white"
+            className="truncate h-11 w-full rounded-2xl bg-gray-100 px-4 text-sm text-gray-800 outline-none border border-transparent focus:border-purple-400 focus:bg-white"
             value={lockPaidById ?? paidById}
             onChange={(e) => setPaidById(e.target.value)}
             disabled={!!lockPaidById}
@@ -336,18 +348,17 @@ export function ExpenseForm({
             type="button"
             onClick={() => {
               setSplitType("percentage");
-              // Khởi tạo % mặc định nếu cần (ví dụ chia đều)
               const defaultPercent = 100 / selectedIds.length;
               const newPercents: Record<string, number> = {};
-              selectedIds.forEach(id => {
+              selectedIds.forEach((id) => {
                 newPercents[id] = defaultPercent;
               });
               setPercentages(newPercents);
             }}
-            className={`px-4 py-2 rounded-2xl text-sm font-semibold transition-all ${
+            className={`px-3 py-1 rounded-2xl text-xs font-semibold ${
               splitType === "percentage"
                 ? "bg-white shadow-sm text-purple-700"
-                : "text-gray-600 hover:bg-gray-200"
+                : "text-gray-500"
             }`}
           >
             Percentage (%)
@@ -364,7 +375,7 @@ export function ExpenseForm({
               Enter exact amounts for each selected participant.
             </p>
             {selectedIds.length === 0 && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs font-bold text-gray-500">
                 Select at least one participant to enter amounts.
               </div>
             )}
@@ -377,21 +388,23 @@ export function ExpenseForm({
                       key={id}
                       className="flex items-center justify-between gap-3 rounded-2xl bg-gray-50 px-3 py-2"
                     >
-                      <div className="text-sm font-semibold text-gray-700 truncate">
+                      <div className="flex-1 text-sm font-semibold text-gray-700 truncate">
                         {participant?.name ?? "Member"}
                       </div>
-                      <Input
-                        inputMode="numeric"
-                        className="h-9 w-32 bg-white"
-                        placeholder="0"
-                        value={exactAmounts[id] ?? ""}
-                        onChange={(e) =>
-                          setExactAmounts((prev) => ({
-                            ...prev,
-                            [id]: e.target.value,
-                          }))
-                        }
-                      />
+                      <div className="flex-1">
+                        <Input
+                          inputMode="numeric"
+                          className="h-9 bg-white"
+                          placeholder="0"
+                          value={exactAmounts[id] ?? ""}
+                          onChange={(e) =>
+                            setExactAmounts((prev) => ({
+                              ...prev,
+                              [id]: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
                     </div>
                   );
                 })}
@@ -399,69 +412,101 @@ export function ExpenseForm({
             )}
           </div>
         )}
-        {splitType === "percentage" && selectedIds.length > 0 && (
-          <div className="mt-4 space-y-3 bg-gray-50 p-4 rounded-2xl">
-            <div className="text-sm font-medium text-gray-700">
+        {splitType === "percentage" && (
+          <div className="space-y-2">
+            <p className="text-xs text-gray-500">
               Enter percentage for each selected participant
-            </div>
-            {selectedIds.map((id) => {
-              const participant = participantById.get(id);
-              const currentPercent = percentages[id] || 0;
+            </p>
+            {selectedIds.length === 0 && (
+              <div className="text-xs font-bold text-gray-500">
+                Select at least one participant to enter percentages.
+              </div>
+            )}
+            {selectedIds.length > 0 && (
+              <div className="mt-4 space-y-3 bg-gray-50 p-4 rounded-2xl">
+                {selectedIds.map((id) => {
+                  const participant = participantById.get(id);
+                  const currentPercent = percentages[id] || 0;
+                  const numericAmount = Number(amount) || 0;
+                  const calculatedAmount =
+                    (currentPercent / 100) * numericAmount;
 
-              return (
-                <div
-                  key={id}
-                  className="flex items-center justify-between gap-4"
-                >
-                  <span className="flex-1 font-medium text-gray-800 truncate">
-                    {participant?.name ?? "Thành viên"}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      value={currentPercent}
-                      onChange={(e) => {
-                        const newValue = parseFloat(e.target.value) || 0;
-                        setPercentages((prev) => ({
-                          ...prev,
-                          [id]: newValue,
-                        }));
-                        setSplitError(null);
-                      }}
-                      className="w-24 p-2 border rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-purple-300"
-                    />
-                    <span className="text-sm font-medium text-gray-600">%</span>
+                  return (
+                    <div
+                      key={id}
+                      className="flex items-center justify-between gap-4"
+                    >
+                      <span className="flex-1 text-sm font-semibold text-gray-700 truncate">
+                        {participant?.name ?? "Thành viên"}
+                      </span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            inputMode="numeric"
+                            className="h-9 bg-white"
+                            placeholder="100"
+                            value={currentPercent}
+                            onChange={(e) => {
+                              const newValue = parseFloat(e.target.value) || 0;
+                              if (newValue > 100) return;
+                              setPercentages((prev) => ({
+                                ...prev,
+                                [id]: newValue,
+                              }));
+                              setSplitError(null);
+                            }}
+                          />
+                          <span className="text-sm font-medium text-gray-600">
+                            %
+                          </span>
+                        </div>
+                        <div className="text-[11px] font-medium text-purple-500">
+                          <div className="text-xs text-gray-500">
+                            ~{" "}
+                            {formatCurrencyVND(
+                              Number(
+                                calculatedAmount
+                                  .toLocaleString()
+                                  .replace(/\D/g, ""),
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Hiển thị tổng phần trăm */}
+                <div className="pt-2 border-t border-gray-200">
+                  <div className="flex justify-between text-sm font-medium">
+                    <span>Sum of percentages</span>
+                    <span
+                      className={
+                        Math.abs(
+                          Object.values(percentages).reduce(
+                            (a, b) => a + b,
+                            0,
+                          ) - 100,
+                        ) < 0.01
+                          ? "text-emerald-600"
+                          : "text-rose-600"
+                      }
+                    >
+                      {Object.values(percentages)
+                        .reduce((a, b) => a + b, 0)
+                        .toFixed(2)}
+                      %
+                    </span>
                   </div>
                 </div>
-              );
-            })}
-
-            {/* Hiển thị tổng phần trăm */}
-            <div className="pt-2 border-t border-gray-200">
-              <div className="flex justify-between text-sm font-medium">
-                <span>Tổng phần trăm:</span>
-                <span
-                  className={
-                    Math.abs(
-                      Object.values(percentages).reduce((a, b) => a + b, 0) - 100
-                    ) < 0.01
-                      ? "text-emerald-600"
-                      : "text-rose-600"
-                  }
-                >
-                  {Object.values(percentages)
-                    .reduce((a, b) => a + b, 0)
-                    .toFixed(2)}
-                  %
-                </span>
               </div>
-            </div>
+            )}
           </div>
         )}
-        {splitError && <div className="text-xs text-rose-600">{splitError}</div>}
+        {splitError && (
+          <div className="text-xs text-rose-600">{splitError}</div>
+        )}
       </div>
 
       <div className="space-y-1">
@@ -475,7 +520,7 @@ export function ExpenseForm({
 
       <div className="pt-2">
         <Button className="min-w-[140px]" disabled={loading}>
-          {loading ? "Saving..." : submitLabel ?? "Add expense"}
+          {loading ? "Saving..." : (submitLabel ?? "Add expense")}
         </Button>
       </div>
     </form>

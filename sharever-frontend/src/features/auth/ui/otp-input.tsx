@@ -33,7 +33,10 @@ export function OtpInput({
     }
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>, index: number) {
+  function handleKeyDown(
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number,
+  ) {
     if (e.key === "Backspace" && !value[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
     }
@@ -44,7 +47,9 @@ export function OtpInput({
       {Array.from({ length }).map((_, i) => (
         <input
           key={i}
-          ref={(el) => (inputsRef.current[i] = el)}
+          ref={(el) => {
+            inputsRef.current[i] = el;
+          }}
           inputMode="numeric"
           maxLength={1}
           className="h-11 w-10 text-center rounded-2xl bg-gray-100 text-lg font-semibold text-gray-800 outline-none border border-transparent focus:bg-white focus:border-purple-400 focus:shadow-[0_0_0_1px_rgba(139,92,246,0.2)]"

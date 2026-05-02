@@ -2,17 +2,16 @@ import { useState } from "react";
 import { Input } from "../../../shared/ui/input";
 import { Button } from "../../../shared/ui/button";
 import { useAuth } from "../model/use-auth";
-import { useToast } from "../../../shared/ui/toast";
-import { normalizeError } from "../../../shared/lib/errors";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 export function LoginForm() {
   const { login } = useAuth();
-  const toast = useToast();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const redirectParam = searchParams.get("redirect");
   const safeRedirect =
@@ -26,10 +25,9 @@ export function LoginForm() {
     setLoading(true);
     try {
       await login({ email, password });
-      toast.push("Đăng nhập thành công!");
-      window.location.href = safeRedirect;
+      navigate(safeRedirect, { replace: true });
     } catch (err) {
-      toast.push(normalizeError(err));
+      setError("Wrong email or password");
     } finally {
       setLoading(false);
     }
@@ -64,14 +62,18 @@ export function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-
+        {error && (
+          <p className="text-xs text-rose-500 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2">
+            {error}
+          </p>
+        )}
         <Button className="w-full mt-2" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </Button>
       </form>
 
       <div className="text-xs text-gray-500">
-        Don&apos;t have an account?{" "}
+        Don't have an account?{" "}
         <Link to={registerHref} className="text-purple-600 font-semibold">
           Sign up
         </Link>

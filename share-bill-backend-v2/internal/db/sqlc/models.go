@@ -11,19 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Collector struct {
-	CollectorID   int64              `json:"collector_id"`
-	CollectorUuid uuid.UUID          `json:"collector_uuid"`
-	EventID       int64              `json:"event_id"`
-	ParticipantID *int64             `json:"participant_id"`
-	BankName      string             `json:"bank_name"`
-	BankAccount   string             `json:"bank_account"`
-	BankOwner     string             `json:"bank_owner"`
-	AssignedAt    pgtype.Timestamptz `json:"assigned_at"`
-	EndedAt       pgtype.Timestamptz `json:"ended_at"`
-	IsActive      bool               `json:"is_active"`
-}
-
 type Event struct {
 	EventID           int64              `json:"event_id"`
 	EventUuid         uuid.UUID          `json:"event_uuid"`
@@ -65,6 +52,15 @@ type ExpensePayer struct {
 	PaidAmount    pgtype.Numeric `json:"paid_amount"`
 }
 
+type Notification struct {
+	ID        int64     `json:"id"`
+	UserID    int64     `json:"user_id"`
+	Text      string    `json:"text"`
+	IsRead    bool      `json:"is_read"`
+	EventID   *int64    `json:"event_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type Participant struct {
 	ParticipantID   int64              `json:"participant_id"`
 	ParticipantUuid uuid.UUID          `json:"participant_uuid"`
@@ -75,6 +71,18 @@ type Participant struct {
 	BankAccount     *string            `json:"bank_account"`
 	BankOwner       *string            `json:"bank_owner"`
 	JoinedAt        pgtype.Timestamptz `json:"joined_at"`
+}
+
+type PaymentRequest struct {
+	PaymentRequestID   int64          `json:"payment_request_id"`
+	PaymentRequestUuid uuid.UUID      `json:"payment_request_uuid"`
+	EventID            int64          `json:"event_id"`
+	PayerID            int64          `json:"payer_id"`
+	ReceiverID         int64          `json:"receiver_id"`
+	Amount             pgtype.Numeric `json:"amount"`
+	Status             string         `json:"status"`
+	CreatedAt          time.Time      `json:"created_at"`
+	UpdatedAt          time.Time      `json:"updated_at"`
 }
 
 type Settlement struct {
@@ -100,13 +108,4 @@ type User struct {
 	BankOwner   *string   `json:"bank_owner"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
-}
-
-type VerifyEmail struct {
-	ID         int64     `json:"id"`
-	Email      string    `json:"email"`
-	SecretCode string    `json:"secret_code"`
-	IsUsed     bool      `json:"is_used"`
-	CreatedAt  time.Time `json:"created_at"`
-	ExpiredAt  time.Time `json:"expired_at"`
 }

@@ -50,6 +50,7 @@ func main() {
 	expenseService := services.NewExpenseService(store)
 	settlementService := services.NewSettlementService(store)
 	paymentService := services.NewPaymentService(store)
+	notificationService := services.NewNotificationService(store)
 
 	paymentRequestService := services.NewPaymentRequestService(connPool)
 	passwordService := services.NewPasswordService(connPool)
@@ -60,6 +61,7 @@ func main() {
 	expenseHandler := handlers.NewExpenseHandler(expenseService)
 	settlementHandler := handlers.NewSettlementHandler(settlementService)
 	paymentHandler := handlers.NewPaymentHandler(paymentService)
+	notificationHandler := handlers.NewNotificationHandler(notificationService)
 
 	paymentRequestHandler := handlers.NewPaymentRequestHandler(paymentRequestService)
 	passwordHandler := handlers.NewPasswordHandler(passwordService)
@@ -90,6 +92,7 @@ func main() {
 		settlementHandler,
 		participantHandler,
 		paymentHandler,
+		notificationHandler,
 	)
 
 	routes.SetupPaymentRequestRoutes(app, tokenMaker, paymentRequestHandler)

@@ -1,28 +1,3 @@
--- name: CreateCollector :one
-INSERT INTO collectors (
-    event_id, participant_id, bank_name, bank_account, bank_owner, is_active
-) VALUES (
-    $1, $2, $3, $4, $5, TRUE
-) RETURNING *;
-
--- name: GetActiveCollectorByEventID :one
-SELECT 
-    c.collector_id, 
-    c.bank_name, 
-    c.bank_account, 
-    c.bank_owner,
-    p.participant_uuid, 
-    p.name as participant_name
-FROM collectors c
-JOIN participants p ON c.participant_id = p.participant_id
-WHERE c.event_id = $1 AND c.is_active = TRUE
-LIMIT 1;
-
--- name: DeactivateCollector :exec
-UPDATE collectors
-SET is_active = FALSE, ended_at = NOW()
-WHERE collector_id = $1;
-
 -- name: CreateSettlement :one
 INSERT INTO settlements (
     event_id, settlement_uuid, payer_id, receiver_id, amount

@@ -10,6 +10,14 @@ export default function RegisterPage() {
 
   return (
     <div>
+      <div className="mb-8">
+        <h2 className="text-2xl font-extrabold text-gray-900">
+          Get started for free
+        </h2>
+        <p className="text-sm text-gray-500 mt-1">
+          Manage your shared expenses in one place, anytime, anywhere.
+        </p>
+      </div>
       <RegisterForm onSuccess={() => (window.location.href = loginHref)} />
       <div className="mt-4 text-sm text-gray-500">
         Already have an account?{" "}

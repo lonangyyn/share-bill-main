@@ -5,6 +5,7 @@ import (
 	models "BACKEND/internal/dto"
 	utils "BACKEND/internal/utils"
 	"context"
+	"fmt"
 )
 
 type EventService struct {
@@ -13,6 +14,38 @@ type EventService struct {
 
 func NewEventService(store database.Store) *EventService {
 	return &EventService{store: store}
+}
+func (s *EventService) GetEventInvite(ctx context.Context, eventUUID string) (models.EventInfoDTO, error) {
+	eventUUIDType, err := utils.StringToUUID(eventUUID)
+	if err != nil {
+		return models.EventInfoDTO{}, utils.ErrInvalidInput
+	}
+	event, err := s.store.GetEventByUUID(ctx, eventUUIDType)
+	if err != nil {
+		return models.EventInfoDTO{}, utils.ErrNotFound
+	}
+
+	var creatorDTO models.CreatorDTO
+	if event.CreatorID != nil {
+		creator, err := s.store.GetUserByID(ctx, *event.CreatorID)
+		if err == nil {
+			creatorDTO = models.CreatorDTO{
+				ID:   creator.UserUuid.String(),
+				Name: creator.Name,
+			}
+		}
+	}
+
+	return models.EventInfoDTO{
+		ID:          event.EventUuid.String(),
+		Name:        event.Name,
+		Description: utils.GetStringFromPointer(event.Description),
+		Currency:    event.Currency,
+		Status:      utils.GetStringFromPointer(event.Status),
+		CreatedBy:   creatorDTO,
+		CreatedAt:   event.CreatedAt.Time,
+		UpdatedAt:   event.LastUpdatedAt.Time,
+	}, nil
 }
 
 func (s *EventService) CreateEvent(ctx context.Context, userID int64, req models.CreateEventRequest) (models.EventDetailResponse, error) {
@@ -276,6 +309,17 @@ func (s *EventService) JoinEvent(ctx context.Context, userID int64, eventUUID st
 		BankOwner: bankOwner,
 	}
 	_, err = s.store.AddParticipant(ctx, arg)
+
+	// BẮN THÔNG BÁO CHO CHỦ NHÓM (CREATOR) NẾU THAM GIA THÀNH CÔNG
+	if err == nil && event.CreatorID != nil && *event.CreatorID != userID {
+		argNotif := database.CreateNotificationParams{
+			UserID:  *event.CreatorID,
+			Text:    fmt.Sprintf("%s has joined the event %s", req.Name, event.Name),
+			EventID: &event.EventID,
+		}
+		_, err = s.store.CreateNotification(ctx, argNotif)
+	}
+
 	return err
 }
 

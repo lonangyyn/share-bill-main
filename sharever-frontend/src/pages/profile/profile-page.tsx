@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { User, Mail, Shield, Bell, LogOut, ChevronRight, CreditCard } from "lucide-react";
+import {
+  User,
+  Shield,
+  Bell,
+  LogOut,
+  ChevronRight,
+  CreditCard,
+} from "lucide-react";
 
 import { userApi } from "../../entities/user/api";
 import { DEFAULT_AVATAR_URL } from "../../shared/lib/default-avatar";
@@ -19,7 +26,9 @@ const ProfileItem = ({ icon: Icon, label, value, danger }: any) => (
       >
         <Icon size={20} />
       </div>
-      <span className={`font-semibold ${danger ? "text-red-500" : "text-gray-700"}`}>
+      <span
+        className={`font-semibold ${danger ? "text-red-500" : "text-gray-700"}`}
+      >
         {label}
       </span>
     </div>
@@ -58,7 +67,9 @@ export default function ProfilePage() {
   };
 
   if (!user) {
-    return <div className="py-10 text-center text-gray-400">Loading profile...</div>;
+    return (
+      <div className="py-10 text-center text-gray-400">Loading profile...</div>
+    );
   }
 
   return (

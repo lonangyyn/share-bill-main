@@ -1,7 +1,13 @@
 import { create } from "zustand";
 import { http } from "../../../shared/api/http";
 import { endpoints } from "../../../shared/api/endpoints";
-import { getToken, setToken, clearToken } from "../../../shared/lib/storage";
+import {
+  getToken,
+  setToken,
+  clearToken,
+  getRefreshToken,
+  setRefreshToken,
+} from "../../../shared/lib/storage";
 import type { User } from "../../../entities/user/types";
 
 type State = {
@@ -26,9 +32,24 @@ export const useAuth = create<State>((set) => ({
   login: async ({ email, password }) => {
     const res = await http.post(endpoints.auth.login(), { email, password });
     const data = res.data?.data ?? res.data;
-    const token = data?.token;
+
+    console.log("[Auth Debug] Login response data:", data); // Xem chi tiết data backend trả về
+
+    // Bao lô mọi định dạng key
+    const token = data?.token || data?.accessToken || data?.access_token;
+    const refreshToken =
+      data?.refresh_token || data?.refreshToken || data?.RefreshToken;
+
     if (!token) throw new Error("Missing token");
     setToken(token);
+    if (refreshToken) {
+      setRefreshToken(refreshToken);
+      console.log("[Auth Debug] Saved refresh token successfully!");
+    } else {
+      console.error(
+        "[Auth Debug] WARNING: No refresh token found in login response!",
+      );
+    }
     set({ user: data?.user ?? null, isAuthed: true });
   },
 

@@ -39,6 +39,27 @@ func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
 	})
 }
 
+// GetEventInvite GET /invite/:eventId
+// Lay thong tin can thiet de moi nguoi tham gia event (ma moi, link moi)
+func (h *EventHandler) GetEventInvite(c *fiber.Ctx) error {
+	eventUUID := c.Params("eventId")
+
+	resp, err := h.service.GetEventInvite(c.Context(), eventUUID)
+	if err != nil {
+		// Trả về thẳng mã 404 để tránh utils.MapError ném lỗi 500 ngầm
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"error":   "NOT_FOUND",
+			"message": "Event not found or invalid UUID: " + err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true, 
+		"data":    resp,
+	})
+}
+
 // GetEvent GET /events/:eventId
 // Lay chi tiet event
 func (h *EventHandler) GetEvent(c *fiber.Ctx) error {

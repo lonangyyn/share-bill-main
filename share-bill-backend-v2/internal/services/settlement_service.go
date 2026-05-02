@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+
 	"fmt"
 	"math"
 	"strings"
@@ -146,7 +147,7 @@ func (s *SettlementService) GetEventSummary(ctx context.Context, userID int64, e
 	if strings.ToUpper(*event.Status) == "CLOSED" {
 		status = "closed"
 	}
-	collectorDTO := s.getCollectorInfo(ctx, event.EventID)
+	//collectorDTO := s.getCollectorInfo(ctx, event.EventID)
 
 	resp := models.EventSummaryResponse{
 		Event: models.SettlementEventDTO{
@@ -160,7 +161,7 @@ func (s *SettlementService) GetEventSummary(ctx context.Context, userID int64, e
 		},
 		Summary: models.SummaryInfoDTO{
 			TotalPaidByAll: totalExpenses,
-			Collector:      collectorDTO,
+			Collector:      nil,
 		},
 		Participants:   participantsDTO,
 		SettlementPlan: suggestions,
@@ -172,22 +173,22 @@ func (s *SettlementService) GetEventSummary(ctx context.Context, userID int64, e
 	return resp, nil
 }
 // Lay thong tin collector hien tai (helper)
-func (s *SettlementService) getCollectorInfo(ctx context.Context, eventID int64) *models.CollectorDTO {
-	collector, err := s.store.GetActiveCollectorByEventID(ctx, eventID)
-	if err != nil {
-		return nil
-	}
-	return &models.CollectorDTO{
-		ID:   collector.ParticipantUuid.String(),
-		Name: collector.ParticipantName,
-		BankInfo: models.BankInfoDTO{
-			BankName:      collector.BankName,
-			AccountNumber: collector.BankAccount,
-			AccountName:   collector.BankOwner,
-		},
-	}
+// func (s *SettlementService) getCollectorInfo(ctx context.Context, eventID int64) *models.CollectorDTO {
+// 	collector, err := s.store.GetActiveCollectorByEventID(ctx, eventID)
+// 	if err != nil {
+// 		return nil
+// 	}
+// 	return &models.CollectorDTO{
+// 		ID:   collector.ParticipantUuid.String(),
+// 		Name: collector.ParticipantName,
+// 		BankInfo: models.BankInfoDTO{
+// 			BankName:      collector.BankName,
+// 			AccountNumber: collector.BankAccount,
+// 			AccountName:   collector.BankOwner,
+// 		},
+// 	}
 	
-}
+// }
 
 // Ghi mot settlement trong DB
 func (s *SettlementService) CreateSettlement(ctx context.Context, userID int64, eventUUIDStr string, req models.CreateSettlementRequest) error {

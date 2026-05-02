@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { http } from "../../../shared/api/http";
@@ -70,6 +70,10 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       setError("Passwords do not match.");
       return;
     }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -108,9 +112,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       setResendMessage("Verification code resent.");
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to resend OTP.";
+        err?.response?.data?.message || err?.message || "Failed to resend OTP.";
       setError(msg);
     } finally {
       setResendLoading(false);
@@ -139,7 +141,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         <>
           <div className="space-y-2">
             <label className="block text-xs font-medium text-gray-700">
-              OTP code
+              OTP code <span className="text-red-600">*</span>
             </label>
             <Input
               type="text"
@@ -150,7 +152,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
               disabled={loading}
             />
           </div>
-          <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center gap-1 text-xs text-gray-500">
             <span>Did not get the code?</span>
             <button
               type="button"
@@ -169,12 +171,13 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
           <div className="space-y-2">
             <label className="block text-xs font-medium text-gray-700">
-              Full name
+              Full name (You can change this later){" "}
+              <span className="text-red-600">*</span>
             </label>
             <Input
               type="text"
               autoComplete="name"
-              placeholder="Jimmy Nguyen"
+              placeholder="John Doe"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               disabled={loading}
@@ -183,7 +186,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
           <div className="space-y-2">
             <label className="block text-xs font-medium text-gray-700">
-              Password
+              Password <span className="text-red-600">*</span>
             </label>
             <Input
               type="password"
@@ -197,7 +200,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
           <div className="space-y-2">
             <label className="block text-xs font-medium text-gray-700">
-              Confirm password
+              Confirm password <span className="text-red-600">*</span>
             </label>
             <Input
               type="password"
@@ -219,7 +222,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
       {step === "request" ? (
         <Button type="submit" className="w-full mt-2" disabled={loading}>
-          {loading ? "Sending code..." : "Send OTP"}
+          {loading ? "Sending code..." : "Continue"}
         </Button>
       ) : (
         <div className="space-y-2">
