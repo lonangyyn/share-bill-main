@@ -68,11 +68,12 @@ func (s *UserService) RegisterRequestCode(ctx context.Context, email string) err
 		<p>Mã này sẽ hết hạn sau 5 phút.</p>
 	`, otp)
 	to := []string{email}
-	err = s.emailSender.SendEmail(subject, content, to)
-	if err != nil {
-		log.Printf("Failed to send OTP email to %s: %v\n", email, err)
-		return errors.New("Failed to send email")
-	}
+
+	go func() {
+		if err := s.emailSender.SendEmail(subject, content, to); err != nil {
+			log.Printf("Failed to send OTP email to %s: %v\n", email, err)
+		}
+	}()
 
 	return nil
 }
@@ -116,10 +117,12 @@ func (s *UserService) ResendVerifyCode(ctx context.Context, email string) error 
 		<p>Mã này sẽ hết hạn sau 5 phút.</p>
 	`, storedOTP)
 	to := []string{email}
-	if err := s.emailSender.SendEmail(subject, content, to); err != nil {
-		log.Printf("Failed to send email to %s: %v\n", email, err)
-		return errors.New("Failed to send email")
-	}
+
+	go func() {
+		if err := s.emailSender.SendEmail(subject, content, to); err != nil {
+			log.Printf("Failed to send email to %s: %v\n", email, err)
+		}
+	}()
 
 	return nil
 }
