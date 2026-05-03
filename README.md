@@ -1,4 +1,4 @@
-# ShareBill (Sharever) – Group Expense Splitting System
+# ShareBill (Sharever) - Personal Enhance
 
 🌐 **Live Demo:** [https://sharever.vercel.app/](https://sharever.vercel.app/)
 
@@ -14,15 +14,15 @@ ShareBill allows a group of friends to easily record expenses during a trip, aut
 
 ## Team N8 Members
 
-| Student ID | Full Name             | Role     |
-| ---------- | --------------------- | -------- |
-| 2313624    | Trần Đỗ Cao Trí       | Backend  |
-| 2352708    | Đinh Cao Thiên Lộc    | Backend  |
-| 2311883    | Nguyễn Thị Kim Loan   | Backend  |
-| 2352918    | Nguyễn Lê Đức Phú     | Frontend |
-| 2352770    | Trần Hà My            | Backend  |
-| 2153485    | Nguyễn Quang Khởi     | Frontend |
-| 2311987    | Nguyễn Song Minh Luân | Frontend |
+| Student ID | Full Name             | Role                                   |
+| ---------- | --------------------- | -------------------------------------- |
+| 2313624    | Trần Đỗ Cao Trí       | Design UML, Backend                    |
+| 2352708    | Đinh Cao Thiên Lộc    | Design UML, Report                     |
+| 2311883    | Nguyễn Thị Kim Loan   | Design UML + Database, Backend, Deploy |
+| 2352918    | Nguyễn Lê Đức Phú     | Design UML, Frontend                   |
+| 2352770    | Trần Hà My            | Design UML, Report                     |
+| 2153485    | Nguyễn Quang Khởi     | Design UML, Frontend                   |
+| 2311987    | Nguyễn Song Minh Luân | Design UML, Frontend                   |
 
 ## Tech Stack & Infrastructure
 
