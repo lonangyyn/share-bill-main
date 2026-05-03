@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"mime/multipart"
 	"strconv"
 	"time"
@@ -69,6 +70,7 @@ func (s *UserService) RegisterRequestCode(ctx context.Context, email string) err
 	to := []string{email}
 	err = s.emailSender.SendEmail(subject, content, to)
 	if err != nil {
+		log.Printf("Failed to send OTP email to %s: %v\n", email, err)
 		return errors.New("Failed to send email")
 	}
 
@@ -115,6 +117,7 @@ func (s *UserService) ResendVerifyCode(ctx context.Context, email string) error 
 	`, storedOTP)
 	to := []string{email}
 	if err := s.emailSender.SendEmail(subject, content, to); err != nil {
+		log.Printf("Failed to send email to %s: %v\n", email, err)
 		return errors.New("Failed to send email")
 	}
 
