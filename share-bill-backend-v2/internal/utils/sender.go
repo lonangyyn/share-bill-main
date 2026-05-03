@@ -43,7 +43,7 @@ func (sender *GmailSender) SendEmail(subject string, content string, to []string
 	m.SetBody("text/html", content)
 
 	// Gmail SMTP Server
-	d := gomail.NewDialer("smtp.gmail.com", 587, sender.fromEmailAddress, sender.fromEmailPassword)
+	d := gomail.NewDialer("smtp.gmail.com", 465, sender.fromEmailAddress, sender.fromEmailPassword)
 
 	return d.DialAndSend(m)
 }
