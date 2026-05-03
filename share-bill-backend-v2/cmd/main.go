@@ -54,7 +54,7 @@ func main() {
 	log.Println("Redis connected")
 
 	tokenMaker := utils.NewJWTMaker(cfg.JWTSecret)
-	emailSender := utils.NewGmailSender(cfg.EmailSenderName, cfg.EmailSenderAddress, cfg.EmailSenderPassword)
+	emailSender := utils.NewSendGridSender(cfg.EmailSenderName, cfg.EmailSenderAddress, cfg.EmailSenderPassword)
 
 	uploadService, err := services.NewUploadService(cfg.CloudinaryURL)
 	if err != nil {

@@ -5,45 +5,59 @@ import (
 	"log"
 	"strings"
 
-	"gopkg.in/gomail.v2"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 type EmailSender interface {
 	SendEmail(subject string, content string, to []string) error
 }
 
-type GmailSender struct {
-	name              string
-	fromEmailAddress  string
-	fromEmailPassword string
+type SendGridSender struct {
+	name             string
+	fromEmailAddress string
+	apiKey           string
 }
 
-func NewGmailSender(name string, fromEmailAddress string, fromEmailPassword string) EmailSender {
-	return &GmailSender{
-		name:              name,
-		fromEmailAddress:  strings.TrimSpace(fromEmailAddress),
-		fromEmailPassword: strings.TrimSpace(fromEmailPassword),
+func NewSendGridSender(name string, fromEmailAddress string, apiKey string) EmailSender {
+	return &SendGridSender{
+		name:             name,
+		fromEmailAddress: strings.TrimSpace(fromEmailAddress),
+		apiKey:           strings.TrimSpace(apiKey),
 	}
 }
 
-func (sender *GmailSender) SendEmail(subject string, content string, to []string) error {
+func (sender *SendGridSender) SendEmail(subject string, content string, toAddresses []string) error {
 	// DEV MODE: Nếu chưa cấu hình email thì không gửi, chỉ log ra console để demo.
-	if sender.fromEmailAddress == "" || sender.fromEmailPassword == "" {
+	if sender.fromEmailAddress == "" || sender.apiKey == "" {
 		log.Println("[DEV MODE] Email sender is not configured -> skip sending email")
-		log.Printf("[DEV MODE] To=%v | Subject=%s\n", to, subject)
+		log.Printf("[DEV MODE] To=%v | Subject=%s\n", toAddresses, subject)
 		// OTP thường nằm trong content, log content để bạn copy OTP.
 		log.Printf("[DEV MODE] Content:\n%s\n", content)
 		return nil
 	}
 
-	m := gomail.NewMessage()
-	m.SetHeader("From", fmt.Sprintf("%s <%s>", sender.name, sender.fromEmailAddress))
-	m.SetHeader("To", to...)
-	m.SetHeader("Subject", subject)
-	m.SetBody("text/html", content)
+	from := mail.NewEmail(sender.name, sender.fromEmailAddress)
+	
+	p := mail.NewPersonalization()
+	for _, to := range toAddresses {
+		p.AddTos(mail.NewEmail("", to))
+	}
+	p.Subject = subject
 
-	// Gmail SMTP Server
-	d := gomail.NewDialer("smtp.gmail.com", 465, sender.fromEmailAddress, sender.fromEmailPassword)
+	m := mail.NewV3Mail()
+	m.SetFrom(from)
+	m.AddPersonalizations(p)
+	m.AddContent(mail.NewContent("text/html", content))
 
-	return d.DialAndSend(m)
+	client := sendgrid.NewSendClient(sender.apiKey)
+	response, err := client.Send(m)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode >= 400 {
+		return fmt.Errorf("sendgrid error: %d - %s", response.StatusCode, response.Body)
+	}
+
+	return nil
 }
