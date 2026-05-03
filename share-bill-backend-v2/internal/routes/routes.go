@@ -24,16 +24,17 @@ func SetupRoutes(
 	paymentHandler *handlers.PaymentHandler,
 	notificationHandler *handlers.NotificationHandler,
 ) {
-	app.Get("/health", func(c *fiber.Ctx) error {
+	api := app.Group("/api")
+
+	// Đưa Health check và Metrics vào trong nhóm /api
+	api.Get("/health", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(models.SuccessResponse{
 			Success: true, 
 			Message: "Server is running",
 		})
 	})
-	app.Get("/metrics", monitor.New()) // Truy cập /metrics để xem dashboard
+	api.Get("/metrics", monitor.New()) // Truy cập /api/metrics để xem dashboard
 
-
-	api := app.Group("/api")
 	api.Get("/invite/:eventId", eventHandler.GetEventInvite) 
 	// PUBLIC ROUTES (Ko cần Token) ===================================
 	auth := api.Group("/auth")
