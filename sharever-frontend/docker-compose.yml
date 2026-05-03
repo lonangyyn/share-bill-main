@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Truyền URL của Backend vào lúc đóng gói (mặc định trỏ về backend chạy ở port 8080 local)
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:8080/api}
+    container_name: sharever_frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped

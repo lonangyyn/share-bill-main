@@ -41,7 +41,7 @@ ShareBill allows a group of friends to easily record expenses during a trip, aut
 **1. Clone repository**
 
 ```bash
-git clone https://github.com/dath-251-thuanle/share-bill.git
+git clone https://github.com/lonangyyn/share-bill-main.git
 ```
 
 ### Setup environment variables
@@ -63,9 +63,12 @@ docker compose up --build -d
 
 ```bash
 cd sharever-frontend
-npm install
-npm run dev
+docker compose up --build -d
 ```
+
+Open browser and go to localhost:3000 to run project locally.
+
+---
 
 #### Notes
 
